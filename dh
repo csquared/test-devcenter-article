@@ -11,18 +11,7 @@ class Source
     @source = source
   end
 
-  def import(filename)
-    filename = @root_dir + '/' + filename if @root_dir
-    syntax = HIGHLIGHTS[File.extname(filename).gsub(".",'')]
-    puts "importing #{filename} #{syntax && "with syntax: #{syntax}"}"
-
-    source = syntax ? "#{@indent}:::#{syntax}\n" : ''
-    source << File.read(filename).lines.map { |l| @indent.to_s + l }.join
-
-    Source.new(source).to_devcenter(File.dirname(filename)) #recursion FTW
-  end
-
-  def to_devcenter(root_dir = nil)
+  def to_s(root_dir = nil)
     @root_dir = root_dir
     @source.dup.tap do |output|
       FUNCTIONS.each do |f| 
@@ -35,6 +24,19 @@ class Source
       end
     end
   end
+
+  ####
+  private
+  def import(filename)
+    filename = @root_dir + '/' + filename if @root_dir
+    syntax = HIGHLIGHTS[File.extname(filename).gsub(".",'')]
+    puts "importing #{filename} #{syntax && "with syntax: #{syntax}"}"
+
+    source = syntax ? "#{@indent}:::#{syntax}\n" : ''
+    source << File.read(filename).lines.map { |l| @indent.to_s + l }.join
+
+    self.class.new(source).to_s(File.dirname(filename)) #recursion FTW
+  end
 end
 
-puts Source.new(File.read(ARGV[0])).to_devcenter
+puts Source.new(File.read(ARGV[0]))
