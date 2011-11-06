@@ -4,50 +4,19 @@ Coding this up is simple using the [Sinatra](http://www.sinatrarb.com/) web fram
 
 ### Gemfile
 
-    !import(ruby/Gemfile, ruby)
+    !import(ruby/Gemfile)
 
 ### web.rb
 
-    :::ruby
-    require 'sinatra'
-
-    PASTES = {}
-
-    get '/' do
-      erb :new
-    end
-
-    post '/' do
-      id = sprintf("%x", rand(9999999999999))
-      PASTES[id] = params[:data]
-      redirect "/#{id}"
-    end
-
-    get '/:id' do
-      @paste = PASTES[params[:id]]
-      erb :show
-    end
+    !import(ruby/web.rb)
 
 ### views/layout.erb
 
-    :::html
-    <html>
-    <head>
-      <title>PasteIt</title>
-    </head>
-    <body>
-      <h1><a href="/">PasteIt</a></h1>
-      <%= yield %>
-    </body>
-    </html>
+    !import(ruby/views/layout.erb)
 
 ### views/new.erb
 
-    :::html
-    <form method="post" action="/">
-      <textarea name="data" rows="20" cols="80"></textarea><br/>
-      <input type="submit" value="Paste" />
-    </form>
+    !import(ruby/views/new.erb)
 
 ### views/show.erb
 
