@@ -7,24 +7,26 @@ class Source
     @source = source
   end
 
-  def import(file, syntax = nil)
-    if syntax
-      data = ":::#{syntax}\n" 
-      data << File.read(file).lines.map { |l| "    #{l}" }.join("\n") 
-    else
-      data = File.read(file)
-    end
+  
+  def import(filename, syntax = nil)
+    filename = @root_dir + '/' + filename if @root_dir
 
-    Source.new(data).to_devcenter
+    puts "importing #{filename} #{syntax && "with syntax: #{syntax}"}"
+
+    data = syntax ? "#{@indent}:::#{syntax}\n" : ''
+    data << File.read(filename).lines.map { |l| @indent.to_s + l }.join
+    Source.new(data).to_devcenter(File.dirname(filename))
   end
 
-  def to_devcenter
+  def to_devcenter(root_dir = nil)
+    @root_dir = root_dir
     @source.dup.tap do |output|
       FUNCTIONS.each do |f| 
-        function_call = /\!#{f}\(([^\)]+)\)/
+        function_call = /( *)\!#{f}\(([^\)]+)\)/
         output.gsub!(function_call) do |token|
           matchdata = token.match(function_call)
-          send(f, *matchdata[1].split(','))
+          @indent = matchdata[1]
+          send(f, *matchdata[2].split(','))
         end
       end
     end
