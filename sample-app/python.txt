@@ -1,0 +1,89 @@
+#### Python
+
+Coding this up is simple using the [Flask](http://flask.pocoo.org/) web framework, [pip](http://pip.openplans.org/) and [virtualenv](http://pypi.python.org/pypi/virtualenv) to declare dependencies, and [Jinja2](http://jinja.pocoo.org/) for our HTML templates:
+
+### requirements.txt
+
+    :::python
+    flask==0.6
+
+### web.py
+
+    :::python
+    from flask import *
+    import os, sys, logging, random
+
+    app = Flask(__name__)
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+
+    pastes = {}
+
+    @app.route('/')
+    def new():
+        return render_template('new.html')
+
+    @app.route('/', methods=['POST'])
+    def create():
+        id = "%x" % random.randint(0, 9999999999999)
+        pastes[id] = request.form['data']
+        return redirect('/' + id)
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return ''
+
+    @app.route('/<id>')
+    def show(id):
+        return render_template('show.html', paste=pastes[id])
+
+    if __name__ == "__main__":
+        port = int(os.environ.get('PORT') or 5000)
+        app.run(host='0.0.0.0', port=port)
+
+### templates/base.html
+
+    :::html
+    <html>
+    <head>
+      <title>PasteIt</title>
+    </head>
+    <body>
+      <h1><a href="/">PasteIt</a></h1>
+      {% block content %}{% endblock %}
+    </body>
+    </html>
+
+### templates/new.html
+
+    :::html
+    {% extends "base.html" %}
+    {% block content %}
+      <form method="post" action="/">
+        <textarea name="data" rows="20" cols="80"></textarea><br/>
+        <input type="submit" value="Paste" />
+      </form>
+    {% endblock %}
+
+### templates/show.html
+
+    :::html
+    {% extends "base.html" %}
+    {% block content %}
+      <pre>{{ paste }}</pre>
+    {% endblock %}
+
+### .gitignore
+
+    *.pyc
+    .Python
+    bin
+    build
+    lib
+    include
+
+When all sourcefiles have been created, run `virtualenv` and `pip` to install dependencies:
+
+    :::term
+    $ virtualenv --no-site-packages .
+    $ bin/pip install -r requirements.txt
+

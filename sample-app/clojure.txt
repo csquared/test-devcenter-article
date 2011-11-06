@@ -1,0 +1,75 @@
+#### Clojure
+
+Coding this up is simple using the [Compojure](https://github.com/weavejester/compojure#readme) web framework, [Leiningen](https://github.com/technomancy/leiningen#readme) to declare dependencies, and [Hiccup](https://github.com/weavejester/hiccup#readme) for our HTML templates:
+
+### project.clj
+
+    :::clojure
+    (defproject pasteit "0.0.1"
+      :dependencies
+        [[org.clojure/clojure "1.2.0"]
+         [ring/ring-jetty-adapter "0.3.7"]
+         [compojure "0.5.3"]
+         [hiccup "0.3.4"]])
+
+### src/web.clj
+
+    :::clojure
+    (ns web
+      (:require view)
+      (:use compojure.core)
+      (:use ring.util.response)
+      (:use ring.adapter.jetty))
+
+    (def pastes (atom {}))
+
+    (defroutes app
+      (GET "/" []
+        (view/new))
+      (POST "/" [data]
+        (let [id (format "%x" (rand-int 999999999))]
+          (swap! pastes assoc id data)
+          (redirect (str "/" id))))
+      (GET "/:id" [id]
+        (let [paste (get @pastes id)]
+          (view/show paste))))
+
+    (defn wrap-logging [handler]
+      (fn [req]
+        (println (.toUpperCase (name (:request-method req))) (:uri req))
+        (handler req)))
+
+    (defn -main []
+      (let [port (-> (System/getenv) (get "PORT" "8080") (Integer/parseInt))]
+        (run-jetty (wrap-logging app) {:port port})))
+
+### src/view.clj
+
+    :::clojure
+    (ns view
+      (:use hiccup.core))
+
+    (defn layout [content]
+      (html
+        [:html
+          [:head
+            [:title "PasteIt"]]
+          [:body
+            [:h1 [:a {"href" "/"} "PasteIt"]]
+            content]]))
+
+    (defn new []
+      (layout
+        [:form {:method "POST" :action "/"}
+          [:textarea {:name "data" :rows "20" :cols "80"}] [:br]
+          [:input {:type "submit" :value "Paste"}]]))
+
+    (defn show [paste]
+      (layout
+        [:pre paste]))
+
+### .gitignore
+
+    lib
+
+When all sourcefiles have been created, run `lein deps` to install dependencies.

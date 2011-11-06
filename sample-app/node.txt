@@ -1,0 +1,79 @@
+#### Node.js
+
+Coding this up is simple using the [Express](http://expressjs.com/) web framework, [NPM](http://npmjs.org/) to declare dependencies, and [EJS](http://embeddedjs.com/) for our HTML templates:
+
+### package.json
+
+    :::java_script
+    {
+      "name": "pasteit",
+      "version": "0.0.1",
+      "dependencies": {
+        "express": "1.0.0",
+        "ejs": "0.2.1"
+      }
+    }
+
+### web.js
+
+    :::java_script
+    require.paths.unshift('./node_modules');
+
+    var express = require('express');
+    var app = express.createServer(
+      express.logger(),
+      express.bodyDecoder()
+    );
+
+    var pastes = {};
+
+    app.get('/', function(req, res) {
+      res.render('new.ejs');
+    });
+
+    app.post('/', function(req, res) {
+      var id = Math.floor(Math.random() * 9999999999999).toString(16);
+      pastes[id] = req.body.data;
+      res.redirect('/' + id);
+    });
+
+    app.get('/:id', function(req, res) {
+      var paste = pastes[req.params.id];
+      res.render('show.ejs', { locals: { paste: paste } });
+    });
+
+    var port = parseInt(process.env.PORT) || 8000;
+    console.log('Listening on port ' + port);
+    app.listen(port);
+
+### views/layout.ejs
+
+    :::html
+    <html>
+    <head>
+      <title>PasteIt</title>
+    </head>
+    <body>
+      <h1><a href="/">PasteIt</a></h1>
+      <%- body %>
+    </body>
+    </html>
+
+### views/new.ejs
+
+    :::html
+    <form method="post" action="/">
+      <textarea name="data" rows="20" cols="80"></textarea><br/>
+      <input type="submit" value="Paste" />
+    </form>
+
+### views/show.ejs
+
+    :::html
+    <pre><%- paste %></pre>
+
+### .gitignore
+
+    node_modules
+
+When all sourcefiles have been created, run `npm bundle install` to set up the package dependencies.
