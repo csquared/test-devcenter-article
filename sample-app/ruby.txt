@@ -4,7 +4,7 @@ Coding this up is simple using the [Sinatra](http://www.sinatrarb.com/) web fram
 
 ### Gemfile
 
-    !import(ruby/Gemfile)
+    !import(ruby/Gemfile, ruby)
 
 ### web.rb
 
