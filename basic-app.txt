@@ -12,16 +12,24 @@ Our pastebin has three endpoints: the web form for a new paste, the POST endpoin
 
 <div class="tabber">
   <div class="tabbertab">
+
 !import(sample-app/ruby.txt)
+
   </div>
   <div class="tabbertab">
+
 !import(sample-app/node.txt)
+
   </div>
   <div class="tabbertab">
+
 !import(sample-app/clojure.txt)
+
   </div>
   <div class="tabbertab">
+
 !import(sample-app/python.txt)
+
   </div>
 </div>
 
